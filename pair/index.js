@@ -1,19 +1,17 @@
 const express = require('express');
-const app = express();
 const { default: makeWASocket, useMultiFileAuthState, delay, makeCacheableSignalKeyStore } = require('@whiskeysockets/baileys');
 const pino = require('pino');
-const fs = require('fs');
+const app = express();
 
 app.get('/', (req, res) => {
-  res.send('<h1>ABBAS-MD Pair Site</h1><p>Use /code?number=9230xxxx</p>');
+  res.send('<h2 style="text-align:center;font-family:sans-serif">ABBAS-MD Pair Site Working ✅</h2><p style="text-align:center">Use /code?number=92300xxxxxxx</p>');
 });
 
 app.get('/code', async (req, res) => {
   let num = req.query.number;
-  if (!num) return res.json({ error: "Number do ?number=9230xxxx" });
+  if (!num) return res.status(400).json({ error: "Number ?number=9230xxxx" });
   num = num.replace(/[^0-9]/g, '');
-  if (fs.existsSync('./pair/auth')) fs.rmSync('./pair/auth', { recursive: true, force: true });
-  const { state, saveCreds } = await useMultiFileAuthState('./pair/auth');
+  const { state, saveCreds } = await useMultiFileAuthState('./auth');
   const sock = makeWASocket({
     auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "silent" })) },
     logger: pino({ level: "silent" }),
@@ -24,12 +22,16 @@ app.get('/code', async (req, res) => {
   await delay(3000);
   if (!sock.authState.creds.registered) {
     try {
-      const code = await sock.requestPairingCode(num);
-      res.json({ code: code?.match(/.{1,4}/g)?.join("-") || code });
+      let code = await sock.requestPairingCode(num);
+      code = code?.match(/.{1,4}/g)?.join("-") || code;
+      res.json({ code: code, status: "ABBAS-MD Pair Success" });
     } catch (e) {
-      res.json({ error: e.message, tip: "Number sahi likho 923xxxxxxxx, 2 min wait karo" });
+      res.status(500).json({ error: e.message });
     }
+  } else {
+    res.json({ message: "Already paired" });
   }
 });
 
-app.listen(3000, () => console.log("Running on 3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("ABBAS-MD Pair Running on " + PORT));
