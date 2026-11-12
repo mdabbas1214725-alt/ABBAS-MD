@@ -1,0 +1,11 @@
+{
+  "name": "ABBAS-MD",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "baileys": "^6.7.0"
+  }
+}
