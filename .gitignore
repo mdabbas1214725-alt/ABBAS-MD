@@ -1,0 +1,7 @@
+node_modules/
+auth/
+pair/auth/
+pair/node_modules/
+.env
+session/
+*.log
